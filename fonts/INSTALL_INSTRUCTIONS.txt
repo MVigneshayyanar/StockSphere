@@ -1,0 +1,92 @@
+# SF Pro Font Files - Complete Installation Guide
+
+This app uses SF Pro fonts globally for a modern, Apple-like design.
+
+## Required Font Files:
+
+You need to download and add these 8 font files to this directory:
+
+### SF Pro Text (for body text):
+- SF-Pro-Text-Regular.ttf
+- SF-Pro-Text-Medium.ttf
+- SF-Pro-Text-Semibold.ttf
+- SF-Pro-Text-Bold.ttf
+
+### SF Pro Display (for headings and titles):
+- SF-Pro-Display-Regular.ttf
+- SF-Pro-Display-Medium.ttf
+- SF-Pro-Display-Semibold.ttf
+- SF-Pro-Display-Bold.ttf
+
+## Download Instructions:
+
+### Option 1: Apple Developer Website (Official)
+1. Visit: https://developer.apple.com/fonts/
+2. Download the "SF Pro" font package
+3. Extract the downloaded .dmg or .zip file
+4. Navigate to the font files inside the package
+5. Copy the files listed above to this `fonts/` directory
+
+### Option 2: Search Online
+Search for "SF Pro font download" and download from a reputable source.
+Look for both "SF Pro Text" and "SF Pro Display" variants.
+
+## File Structure After Installation:
+
+```
+fonts/
+  ├── SF-Pro-Text-Regular.ttf
+  ├── SF-Pro-Text-Medium.ttf
+  ├── SF-Pro-Text-Semibold.ttf
+  ├── SF-Pro-Text-Bold.ttf
+  ├── SF-Pro-Display-Regular.ttf
+  ├── SF-Pro-Display-Medium.ttf
+  ├── SF-Pro-Display-Semibold.ttf
+  ├── SF-Pro-Display-Bold.ttf
+  └── INSTALL_INSTRUCTIONS.txt (this file)
+```
+
+## After Adding Fonts:
+
+Run these commands in your terminal:
+
+```bash
+cd C:\MaxBillUp
+flutter clean
+flutter pub get
+flutter run
+```
+
+## What's Configured:
+
+✅ Global font family set to SF Pro Text
+✅ Display text uses SF Pro Display for headings
+✅ All text in the app will use SF Pro fonts
+✅ Fallback fonts configured for compatibility
+✅ 4 font weights configured (Regular, Medium, Semibold, Bold)
+
+## Font Usage in App:
+
+- **SF Pro Text**: Body text, labels, buttons, small text
+- **SF Pro Display**: Large headings, titles, display text
+
+## Important Notes:
+
+1. **License**: SF Pro is Apple's proprietary font. Ensure you comply with Apple's license terms.
+2. **Fallback**: If fonts aren't found, the app will use system default fonts.
+3. **Size**: Font files will add approximately 4-6 MB to your app size.
+4. **Performance**: No impact on app performance, fonts are loaded once at startup.
+
+## Troubleshooting:
+
+If fonts don't appear after installation:
+1. Make sure all 8 files are in the `fonts/` directory
+2. Check file names match exactly (case-sensitive)
+3. Run `flutter clean` and `flutter pub get` again
+4. Restart your IDE
+5. Run the app on a physical device or emulator
+
+## Alternative: Use System Font
+
+If you prefer not to add SF Pro fonts, you can modify `lib/main.dart` to use the system default font by removing the `fontFamily` and `fontFamilyFallback` lines.
+

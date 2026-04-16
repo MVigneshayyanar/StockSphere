@@ -1,0 +1,13 @@
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/MAX_my_bill_icon.png"
+  remove_alpha_ios: true
+  min_sdk_android: 21
+
+  # Adaptive icon configuration for Android (API 26+)
+  # adaptive_fg has the logo centered at 62% of a 1024x1024 canvas
+  # with 18.9% transparent padding — fits the 66dp safe zone on ALL OEM masks
+  # (circle, squircle, rounded square, teardrop, etc.)
+  adaptive_icon_foreground: "assets/MAX_my_bill_icon.png"
+  adaptive_icon_background: "assets/icon_bg_gradient.png"

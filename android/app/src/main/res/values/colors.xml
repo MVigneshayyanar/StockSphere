@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash screen background color - matches your Flutter SplashPage (#2F7CF6) -->
+    <color name="splash_color">#2F7CF6</color>
+    <!-- App launcher icon background - white to ensure icon is fully visible -->
+    <color name="ic_launcher_background">#FFFFFF</color>
+</resources>

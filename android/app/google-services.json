@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "490905109908",
+    "firebase_url": "https://maxbillup-default-rtdb.firebaseio.com",
+    "project_id": "maxbillup",
+    "storage_bucket": "maxbillup.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:490905109908:android:f858f9498ce1462007fb81",
+        "android_client_info": {
+          "package_name": "com.example.maxmybill"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "490905109908-6mbuv8jbcucq3vqanptqa7vp0q3is1tp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAarypDsma-UFSw0gFw2lv99s1f_bsh4QA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "490905109908-6mbuv8jbcucq3vqanptqa7vp0q3is1tp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
