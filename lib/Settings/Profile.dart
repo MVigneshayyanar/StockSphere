@@ -29,6 +29,7 @@ import 'package:maxbillup/utils/plan_permission_helper.dart';
 import 'package:maxbillup/Settings/TaxSettings.dart' as TaxSettingsNew;
 import 'package:maxbillup/Settings/StaffManagement.dart';
 import 'package:maxbillup/services/referral_service.dart';
+import 'package:maxbillup/utils/phone_country_codes.dart';
 
 // ==========================================DF
 // 1. MAIN SETTINGS PAGE
@@ -344,7 +345,9 @@ class _SettingsPageState extends State<SettingsPage> {
         // Use cached plan for instant access - updates automatically when subscription changes
         final plan = planProvider.cachedPlan;
         final originalPlan = planProvider.originalPlan;
+        final normalizedPlan = plan.toLowerCase().trim();
         final isPremium = plan.toLowerCase() != 'free' && plan.toLowerCase() != 'starter';
+        final isHighestPlan = normalizedPlan == PlanProvider.PLAN_MAX.toLowerCase();
         final expiryDate = planProvider.cachedExpiryDate;
         final isExpiringSoon = planProvider.isExpiringSoon;
         final daysUntilExpiry = planProvider.daysUntilExpiry;
@@ -355,6 +358,7 @@ class _SettingsPageState extends State<SettingsPage> {
                          plan.toLowerCase() == 'free' &&
                          expiryDate != null &&
                          DateTime.now().isAfter(expiryDate);
+        final showUpgradeCta = isExpired || !isHighestPlan;
 
         // Format expiry date
         String? expiryText;
@@ -459,7 +463,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 const SizedBox(width: 8),
                                 Text('(was ${originalPlan})', style: const TextStyle(fontSize: 9, color: kBlack54, fontStyle: FontStyle.italic, fontFamily: 'Lato')),
                               ],
-                              if (!isPremium || isExpired) ...[
+                              if (showUpgradeCta) ...[
                                 const SizedBox(width: 12),
                                 Text(isExpired ? 'Renew Now' : 'Upgrade Now', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: kPrimaryColor, letterSpacing: 0.5, fontFamily: 'Lato')),
                               ]
@@ -611,39 +615,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
   String _selectedCountryCode = '+91';
   String _selectedCountryFlag = '🇮🇳';
 
-  final List<Map<String, String>> _countryCodes = [
-    {'code': '+91', 'flag': '🇮🇳', 'name': 'India'},
-    {'code': '+1', 'flag': '🇺🇸', 'name': 'United States'},
-    {'code': '+44', 'flag': '🇬🇧', 'name': 'United Kingdom'},
-    {'code': '+971', 'flag': '🇦🇪', 'name': 'Uae'},
-    {'code': '+966', 'flag': '🇸🇦', 'name': 'Saudi Arabia'},
-    {'code': '+974', 'flag': '🇶🇦', 'name': 'Qatar'},
-    {'code': '+965', 'flag': '🇰🇼', 'name': 'Kuwait'},
-    {'code': '+973', 'flag': '🇧🇭', 'name': 'Bahrain'},
-    {'code': '+968', 'flag': '🇴🇲', 'name': 'Oman'},
-    {'code': '+60', 'flag': '🇲🇾', 'name': 'Malaysia'},
-    {'code': '+65', 'flag': '🇸🇬', 'name': 'Singapore'},
-    {'code': '+92', 'flag': '🇵🇰', 'name': 'Pakistan'},
-    {'code': '+880', 'flag': '🇧🇩', 'name': 'Bangladesh'},
-    {'code': '+94', 'flag': '🇱🇰', 'name': 'Sri Lanka'},
-    {'code': '+977', 'flag': '🇳🇵', 'name': 'Nepal'},
-    {'code': '+61', 'flag': '🇦🇺', 'name': 'Australia'},
-    {'code': '+64', 'flag': '🇳🇿', 'name': 'New Zealand'},
-    {'code': '+49', 'flag': '🇩🇪', 'name': 'Germany'},
-    {'code': '+33', 'flag': '🇫🇷', 'name': 'France'},
-    {'code': '+39', 'flag': '🇮🇹', 'name': 'Italy'},
-    {'code': '+34', 'flag': '🇪🇸', 'name': 'Spain'},
-    {'code': '+7', 'flag': '🇷🇺', 'name': 'Russia'},
-    {'code': '+81', 'flag': '🇯🇵', 'name': 'Japan'},
-    {'code': '+82', 'flag': '🇰🇷', 'name': 'South Korea'},
-    {'code': '+86', 'flag': '🇨🇳', 'name': 'China'},
-    {'code': '+55', 'flag': '🇧🇷', 'name': 'Brazil'},
-    {'code': '+52', 'flag': '🇲🇽', 'name': 'Mexico'},
-    {'code': '+27', 'flag': '🇿🇦', 'name': 'South Africa'},
-    {'code': '+234', 'flag': '🇳🇬', 'name': 'Nigeria'},
-    {'code': '+254', 'flag': '🇰🇪', 'name': 'Kenya'},
-    {'code': '+20', 'flag': '🇪🇬', 'name': 'Egypt'},
-  ];
+  final List<Map<String, String>> _countryCodes = PhoneCountryCodes.list;
 
   final List<Map<String, String>> _currencies = [
     // Popular currencies first
@@ -814,7 +786,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
     if (widget.initialStoreData != null) {
       final data = widget.initialStoreData!;
       _nameCtrl.text = data['businessName'] ?? '';
-      _phoneCtrl.text = data['businessPhone'] ?? '';
+      _applyBusinessPhoneFromData(data);
       _personalPhoneCtrl.text = data['personalPhone'] ?? '';
 
       // Split taxType into type and number (format: "Type Number")
@@ -930,9 +902,8 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
       if (storeId == null) throw Exception('Store ID not found');
 
       // Build update payload (trimmed values)
-      final rawPhone = _phoneCtrl.text.trim();
-      // Store full phone (country code + number) if the number doesn't already start with +
-      final fullPhone = rawPhone.startsWith('+') ? rawPhone : '$_selectedCountryCode$rawPhone';
+      final localPhone = _phoneCtrl.text.replaceAll(RegExp(r'[^0-9]'), '');
+      final fullPhone = localPhone.isEmpty ? '' : '$_selectedCountryCode$localPhone';
       final updateData = <String, dynamic>{
         'businessName': _nameCtrl.text.trim(),
         'businessPhone': fullPhone,
@@ -980,7 +951,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
         final data = store.data() as Map<String, dynamic>;
         setState(() {
           _nameCtrl.text = data['businessName'] ?? '';
-          _phoneCtrl.text = data['businessPhone'] ?? '';
+          _applyBusinessPhoneFromData(data);
           _personalPhoneCtrl.text = data['personalPhone'] ?? '';
 
           // Split taxType into type and number (format: "Type Number")
@@ -1013,17 +984,6 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
           _locCtrl.text = data['businessLocation'] ?? '';
           _ownerCtrl.text = data['ownerName'] ?? '';
           _logoUrl = data['logoUrl'];
-          // Load country code
-          final savedCode = data['businessPhoneCountryCode'] as String?;
-          if (savedCode != null && savedCode.isNotEmpty) {
-            final match = _countryCodes.where((c) => c['code'] == savedCode).toList();
-            if (match.isNotEmpty) {
-              _selectedCountryCode = match.first['code']!;
-              _selectedCountryFlag = match.first['flag']!;
-            } else {
-              _selectedCountryCode = savedCode;
-            }
-          }
           // Check premium status
           final plan = data['plan'] ?? 'free';
           _isPremium = plan.toString().toLowerCase() != 'free' && plan.toString().toLowerCase() != 'starter';
@@ -1045,6 +1005,63 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
       _storeOriginalValues();
       _setupChangeListeners();
     } catch (e) { debugPrint(e.toString()); }
+  }
+
+  void _applyBusinessPhoneFromData(Map<String, dynamic> data) {
+    final rawPhone = (data['businessPhone'] ?? '').toString().trim();
+    final savedCode = (data['businessPhoneCountryCode'] ?? '').toString().trim();
+
+    var resolvedCode = savedCode;
+    if (resolvedCode.isEmpty && rawPhone.startsWith('+')) {
+      resolvedCode = _findMatchingCountryCode(rawPhone) ?? '';
+    }
+
+    if (resolvedCode.isNotEmpty) {
+      _setSelectedCountryCode(resolvedCode);
+    }
+
+    _phoneCtrl.text = _stripCountryCodeFromPhone(rawPhone, _selectedCountryCode);
+  }
+
+  void _setSelectedCountryCode(String code) {
+    final match = _countryCodes.where((c) => c['code'] == code).toList();
+    if (match.isNotEmpty) {
+      _selectedCountryCode = match.first['code']!;
+      _selectedCountryFlag = match.first['flag']!;
+      return;
+    }
+
+    _selectedCountryCode = code;
+  }
+
+  String? _findMatchingCountryCode(String fullPhone) {
+    final matchingCodes = _countryCodes
+        .map((c) => c['code'])
+        .whereType<String>()
+        .where((code) => fullPhone.startsWith(code))
+        .toList();
+
+    if (matchingCodes.isEmpty) return null;
+    matchingCodes.sort((a, b) => b.length.compareTo(a.length));
+    return matchingCodes.first;
+  }
+
+  String _stripCountryCodeFromPhone(String fullPhone, String selectedCode) {
+    final normalized = fullPhone.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+    if (!normalized.startsWith('+')) {
+      return normalized.replaceAll(RegExp(r'[^0-9]'), '');
+    }
+
+    var codeToStrip = selectedCode;
+    if (codeToStrip.isEmpty || !normalized.startsWith(codeToStrip)) {
+      codeToStrip = _findMatchingCountryCode(normalized) ?? '';
+    }
+
+    if (codeToStrip.isNotEmpty && normalized.startsWith(codeToStrip)) {
+      return normalized.substring(codeToStrip.length).replaceAll(RegExp(r'[^0-9]'), '');
+    }
+
+    return normalized.replaceFirst('+', '').replaceAll(RegExp(r'[^0-9]'), '');
   }
 
   Future<void> _pickImage() async {
@@ -4127,6 +4144,8 @@ class _LanguagePageState extends State<LanguagePage> {
     {'code': 'en', 'name': 'English', 'nativeName': 'English', 'available': true},
     {'code': 'ar', 'name': 'Arabic', 'nativeName': 'العربية', 'available': false},
     {'code': 'es', 'name': 'Spanish', 'nativeName': 'Español', 'available': false},
+    {'code': 'hi', 'name': 'Hindi', 'nativeName': 'हिन्दी', 'available': false},
+    {'code': 'ta', 'name': 'Tamil', 'nativeName': 'தமிழ்', 'available': false},
     {'code': 'fr', 'name': 'French', 'nativeName': 'Français', 'available': false},
     {'code': 'de', 'name': 'German', 'nativeName': 'Deutsch', 'available': false},
     {'code': 'zh', 'name': 'Chinese', 'nativeName': '中文', 'available': false},
@@ -4134,11 +4153,9 @@ class _LanguagePageState extends State<LanguagePage> {
     {'code': 'ko', 'name': 'Korean', 'nativeName': '한국어', 'available': false},
     {'code': 'ru', 'name': 'Russian', 'nativeName': 'Русский', 'available': false},
     {'code': 'pt', 'name': 'Portuguese', 'nativeName': 'Português', 'available': false},
-    {'code': 'hi', 'name': 'Hindi', 'nativeName': 'हिन्दी', 'available': false},
     {'code': 'bn', 'name': 'Bengali', 'nativeName': 'বাংলা', 'available': false},
     {'code': 'mr', 'name': 'Marathi', 'nativeName': 'मराठी', 'available': false},
     {'code': 'te', 'name': 'Telugu', 'nativeName': 'తెలుగు', 'available': false},
-    {'code': 'ta', 'name': 'Tamil', 'nativeName': 'தமிழ்', 'available': false},
   ];
 
   @override

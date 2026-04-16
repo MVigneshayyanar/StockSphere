@@ -411,8 +411,8 @@ class _SubscriptionPlanPageState extends State<SubscriptionPlanPage> {
     }
 
     // Fetch store details
-    String storeName = 'MAXmybill';
-    String contactEmail = 'maxmybillapp@gmail.com';
+    String storeName = 'StockSphere';
+    String contactEmail = 'stocksphere@gmail.com';
     String contactPhone = '';
     String? dynamicKey;
 

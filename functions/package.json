@@ -1,6 +1,6 @@
 {
   "name": "functions",
-  "description": "Cloud Functions for Firebase - MaxMyBill",
+  "description": "Cloud Functions for Firebase - StockSphere",
   "scripts": {
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
@@ -21,4 +21,3 @@
   },
   "private": true
 }
-

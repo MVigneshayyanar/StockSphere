@@ -406,7 +406,7 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    'Customer template has been downloaded to Downloads/MAXmybill folder',
+                                    'Customer template has been downloaded to your Downloads folder',
                                     style: TextStyle(fontSize: 14, color: kBlack54, height: 1.4),
                                   ),
                                   const SizedBox(height: 16),
@@ -469,7 +469,7 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
                                         SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
-                                            'Check Downloads/MAXmybill folder',
+                                            'Check your Downloads folder',
                                             style: TextStyle(fontSize: 14, color: kGoogleGreen, fontWeight: FontWeight.w600),
                                           ),
                                         ),

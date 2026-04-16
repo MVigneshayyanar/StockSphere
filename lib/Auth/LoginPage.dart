@@ -157,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
 
-    if (identifier != null && identifier.toLowerCase() == 'maxmybillapp@gmail.com') {
+    if (identifier != null && identifier.toLowerCase() == 'stocksphere@gmail.com') {
       Navigator.pushReplacement(
         context,
         CupertinoPageRoute(builder: (context) => HomePage(uid: uid, userEmail: identifier)),
@@ -316,7 +316,7 @@ class _LoginPageState extends State<LoginPage> {
       final userEmail = gUser.email.toLowerCase().trim();
 
       // Check if admin account
-      if (userEmail == 'maxmybillapp@gmail.com') {
+      if (userEmail == 'stocksphere@gmail.com') {
         final userCred = await _auth.signInWithCredential(credential);
         final user = userCred.user;
         if (mounted) setState(() => _loading = false);

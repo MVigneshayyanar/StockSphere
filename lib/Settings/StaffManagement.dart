@@ -12,6 +12,7 @@ import 'package:maxbillup/Colors.dart';
 import 'package:maxbillup/Menu/InviteStaffPage.dart';
 import 'package:maxbillup/Settings/RoleManagement.dart';
 import 'package:maxbillup/Settings/PermissionEditor.dart';
+import 'package:maxbillup/utils/plan_permission_helper.dart';
 
 class StaffManagementPage extends StatefulWidget {
   final String uid;
@@ -187,6 +188,63 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
     return _firestoreService.getStoreCollection('users').then((collection) => collection.where('invitedBy', isNotEqualTo: null).snapshots(includeMetadataChanges: true)).asStream().asyncExpand((snapshot) => snapshot);
   }
 
+  Future<int> _getCurrentStaffCount() async {
+    final storeId = await FirestoreService().getCurrentStoreId();
+    if (storeId == null) return 0;
+
+    final usersSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('storeId', isEqualTo: storeId)
+        .get();
+
+    int currentStaffCount = 0;
+    for (final doc in usersSnapshot.docs) {
+      final userData = doc.data();
+      final role = (userData['role'] ?? '').toString().toLowerCase();
+      if (doc.id != widget.uid && role != 'owner') {
+        currentStaffCount++;
+      }
+    }
+    return currentStaffCount;
+  }
+
+  Future<void> _handleInviteStaffTap() async {
+    final currentPlan = await PlanPermissionHelper.getCurrentPlan();
+    final maxStaff = await PlanPermissionHelper.getMaxStaffCount();
+
+    if (maxStaff <= 0) {
+      if (!mounted) return;
+      PlanPermissionHelper.showUpgradeDialog(
+        context,
+        'Staff Management',
+        uid: widget.uid,
+        currentPlan: currentPlan,
+      );
+      return;
+    }
+
+    final currentStaffCount = await _getCurrentStaffCount();
+    if (currentStaffCount >= maxStaff) {
+      if (!mounted) return;
+      PlanPermissionHelper.showUpgradeDialog(
+        context,
+        'Add Staff',
+        uid: widget.uid,
+        currentPlan: currentPlan,
+      );
+      return;
+    }
+
+    if (!mounted) return;
+    final result = await Navigator.push(
+      context,
+      CupertinoPageRoute(builder: (_) => InviteStaffPage(uid: widget.uid)),
+    );
+    if (result == true) {
+      _checkAllPendingVerifications();
+    }
+  }
+
   // ==========================================
   // UI BUILD METHODS (ENTERPRISE FLAT)
   // ==========================================
@@ -227,12 +285,7 @@ class _StaffManagementPageState extends State<StaffManagementPage> {
           ],
         ),
         floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final result = await Navigator.push(context, CupertinoPageRoute(builder: (_) => InviteStaffPage(uid: widget.uid)));
-          if (result == true) {
-            _checkAllPendingVerifications();
-          }
-        },
+        onPressed: _handleInviteStaffTap,
         elevation: 0,
         backgroundColor: kPrimaryColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

@@ -103,7 +103,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'MAXmybill',
+      title: 'StockSphere',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2F7CF6)),
         useMaterial3: true,

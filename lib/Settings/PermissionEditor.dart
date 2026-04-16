@@ -20,12 +20,17 @@ class PermissionEditorPage extends StatefulWidget {
 
 class _PermissionEditorPageState extends State<PermissionEditorPage> {
   late Map<String, bool> _editedPermissions;
+  static const String _invoiceMasterKey = 'billHistory';
+  static const List<String> _invoiceDependentKeys = [
+    'editInvoice',
+    'returnInvoice',
+    'cancelInvoice',
+  ];
 
   // Permission categories for organized display
   final Map<String, List<String>> _categories = {
-    'Sales & Billing': ['quotation', 'billHistory', 'creditNotes'],
-    'Invoice Actions': ['editInvoice', 'returnInvoice', 'cancelInvoice'],
-    'Customers': ['customerManagement', 'creditDetails'],
+    'Sales & Billing': ['customerManagement', 'creditDetails','quotation', 'creditNotes'],
+    'Invoice Actions': ['billHistory', 'editInvoice', 'returnInvoice', 'cancelInvoice'],
     'Expenses Management': ['expenses', 'expenseCategories', 'stockPurchase', 'vendors'],
     'Growth+': [
       'daybook', 'salesSummary', 'salesReport', 'analytics','itemSalesReport',
@@ -52,6 +57,27 @@ class _PermissionEditorPageState extends State<PermissionEditorPage> {
         _editedPermissions[perm] = false;
       }
     }
+
+    _normalizeInvoiceActions();
+  }
+
+  void _normalizeInvoiceActions() {
+    final masterValue = _editedPermissions[_invoiceMasterKey] ?? false;
+    for (final key in _invoiceDependentKeys) {
+      _editedPermissions[key] = masterValue;
+    }
+  }
+
+  void _handlePermissionToggle(String key, bool newValue) {
+    setState(() {
+      _editedPermissions[key] = newValue;
+
+      if (key == _invoiceMasterKey) {
+        for (final depKey in _invoiceDependentKeys) {
+          _editedPermissions[depKey] = newValue;
+        }
+      }
+    });
   }
 
   String _formatPermissionName(String key) {
@@ -60,7 +86,7 @@ class _PermissionEditorPageState extends State<PermissionEditorPage> {
       'quotation': 'Estimation / Quotation',
       'billHistory': 'Manage Bills',
       'creditNotes': 'Return & Refunds',
-      'customerManagement': 'Customer Management',
+      'customerManagement': 'Customers',
       'creditDetails': 'Credits & Dues',
       'staffManagement': 'Staff Access & Roles',
       // Expenses (4 sub-items)
@@ -108,6 +134,7 @@ class _PermissionEditorPageState extends State<PermissionEditorPage> {
       for (var key in _editedPermissions.keys) {
         _editedPermissions[key] = value;
       }
+      _normalizeInvoiceActions();
     });
   }
 
@@ -255,6 +282,7 @@ class _PermissionEditorPageState extends State<PermissionEditorPage> {
               ),
               child: ElevatedButton(
                 onPressed: () {
+                  _normalizeInvoiceActions();
                   Navigator.pop(context, _editedPermissions);
                 },
                 style: ElevatedButton.styleFrom(
@@ -361,9 +389,7 @@ class _PermissionEditorPageState extends State<PermissionEditorPage> {
         trailing: AppMiniSwitch(
           value: value,
           onChanged: (newValue) {
-            setState(() {
-              _editedPermissions[key] = newValue;
-            });
+            _handlePermissionToggle(key, newValue);
           },
         ),
       ),

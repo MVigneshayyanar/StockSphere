@@ -85,7 +85,7 @@ class _SplashPageState extends State<SplashPage>
 
       // Check if the logged-in user is admin
       final userEmail = user.email?.toLowerCase() ?? '';
-      if (userEmail == 'maxmybillapp@gmail.com') {
+      if (userEmail == 'stocksphere@gmail.com') {
         // Initialize PlanProvider in background (non-blocking)
         final planProvider = Provider.of<PlanProvider>(context, listen: false);
         planProvider.initialize(); // Don't await - let it run in background

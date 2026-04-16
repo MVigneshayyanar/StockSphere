@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:maxbillup/utils/responsive_helper.dart';
+import 'responsive_helper.dart';
 
 /// Helper class to optimize keyboard performance and behavior
 class KeyboardHelper {
